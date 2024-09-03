@@ -1,1 +1,178 @@
-docker pull nginx docker -it -d -p 8000:80 nginx
+task1:- create free style job run niginx container with the port no 8000
+          docker pull nginx 
+          docker -it -d -p 8000:80 nginx
+
+task2:- write a pipeline script to pull niginx images and run the container with portno 8001
+            pipeline {
+                agent any
+                stages {
+                    stage('pull image') {
+                        steps {
+                            sh 'docker pull nginx'
+                        }
+                    }
+                    
+                    stage('run container') {
+                        steps {
+                            script {
+                                sh 'docker run -it -d --name task -p 8001:80 nginx'
+                            }
+                        }
+                    }
+                }
+            }
+task3:- write a playbook to copy files from master node to worker node
+             ---
+              - name: jspiders
+                hosts: demo
+                user: ansible
+                become: yes
+                connection: ssh
+                tasks:
+                  - name: to copy the project file to Webapps
+                    copy:
+                      src: /home/ansible/sample.yml
+                      dest: /home/ansible/sample.yml
+
+task4:- write a playbook to install docker in worker node 
+         a. start the docker service
+         b.pull niginx image
+         c.run  a niginx container with the port no 8000
+    ---
+      - name: Install Docker and Run Nginx Container on Worker Node
+        hosts: worker_nodes
+        become: yes
+        tasks:
+  
+       - name: Update the apt package index
+          apt:
+            update_cache: yes
+    
+       - name: Install necessary prerequisites
+          apt:
+            name: "{{ item }}"
+            state: present
+          loop:
+            - apt-transport-https
+            - ca-certificates
+            - curl
+            - software-properties-common
+    
+        - name: Add Docker's official GPG key
+          apt_key:
+            url: https://download.docker.com/linux/ubuntu/gpg
+            state: present
+    
+        - name: Add Docker apt repository
+          apt_repository:
+            repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+            state: present
+    
+        - name: Update apt package index again
+          apt:
+            update_cache: yes
+    
+        - name: Install Docker
+          apt:
+            name: docker-ce
+            state: present
+    
+        - name: Start and enable Docker service
+          systemd:
+            name: docker
+            state: started
+            enabled: yes
+    
+        - name: Pull the Nginx image from Docker Hub
+          docker_image:
+            name: nginx
+            source: pull
+    
+        - name: Run Nginx container on port 8000
+          docker_container:
+            name: nginx-container
+            image: nginx
+            state: started
+            ports:
+              - "8000:80"
+
+task5:- write a playbook
+          a.install git in workernode
+          b.pull source code
+       ---
+          - name: Connect 
+            hosts: demo
+            user: ansible
+            become: yes
+            connection:ssh
+            tasks:
+              - name: Install Git
+                shell: yum install git -y
+              - name:  Pull code 
+                shell: git clone "https://github.com/htmlfolder/testfreshers.git"
+
+task6:- playbook script 
+        a. start docker sservice
+        b. pull httpd image
+        c.run a container with 8000
+        d.take a snapsort of running  container and create docker image
+        e.that dockerimage push to  dockerhub
+
+       ---
+- name: connect
+  hosts: demo
+  user: ansible
+  become: yes
+  connection: ssh
+  tasks:
+    - name: Search for Docker package (for information, not necessary to run)
+      command: yum search docker
+      register: docker_search
+
+    - debug:
+        var: docker_search.stdout
+
+    - name: Install Docker
+      yum:
+        name: docker
+        state: present
+
+    - name: Enable Docker service
+      systemd:
+        name: docker.service
+        enabled: yes
+
+    - name: Start Docker service
+      systemd:
+        name: docker.service
+        state: started
+
+    - name: Check Docker service status (for information)
+      command: systemctl status docker.service
+      register: docker_status
+
+    - debug:
+        var: docker_status.stdout
+
+    - name: Install Git
+      yum:
+        name: git
+        state: present
+
+    - name: Verify Docker version
+      command: docker --version
+      register: docker_version
+
+    - name: docke pull
+      shell: sudo docker pull httpd
+
+    - name: run httpd
+      shell: sudo docker run -it -d --name http -p 8000:80 httpd
+
+    - name: docker shap
+      shell: sudo docker commit http poornima/insidedevil
+
+    - name: push
+      shell: docker push poornima/insidedevil
+
+    
