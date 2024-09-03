@@ -118,61 +118,61 @@ task6:- playbook script
         d.take a snapsort of running  container and create docker image
         e.that dockerimage push to  dockerhub
 
-       ---
-- name: connect
-  hosts: demo
-  user: ansible
-  become: yes
-  connection: ssh
-  tasks:
-    - name: Search for Docker package (for information, not necessary to run)
-      command: yum search docker
-      register: docker_search
-
-    - debug:
-        var: docker_search.stdout
-
-    - name: Install Docker
-      yum:
-        name: docker
-        state: present
-
-    - name: Enable Docker service
-      systemd:
-        name: docker.service
-        enabled: yes
-
-    - name: Start Docker service
-      systemd:
-        name: docker.service
-        state: started
-
-    - name: Check Docker service status (for information)
-      command: systemctl status docker.service
-      register: docker_status
-
-    - debug:
-        var: docker_status.stdout
-
-    - name: Install Git
-      yum:
-        name: git
-        state: present
-
-    - name: Verify Docker version
-      command: docker --version
-      register: docker_version
-
-    - name: docke pull
-      shell: sudo docker pull httpd
-
-    - name: run httpd
-      shell: sudo docker run -it -d --name http -p 8000:80 httpd
-
-    - name: docker shap
-      shell: sudo docker commit http poornima/insidedevil
-
-    - name: push
-      shell: docker push poornima/insidedevil
+         ---
+          - name: connect
+            hosts: demo
+            user: ansible
+            become: yes
+            connection: ssh
+            tasks:
+              - name: Search for Docker package (for information, not necessary to run)
+                command: yum search docker
+                register: docker_search
+          
+              - debug:
+                  var: docker_search.stdout
+          
+              - name: Install Docker
+                yum:
+                  name: docker
+                  state: present
+          
+              - name: Enable Docker service
+                systemd:
+                  name: docker.service
+                  enabled: yes
+          
+              - name: Start Docker service
+                systemd:
+                  name: docker.service
+                  state: started
+          
+              - name: Check Docker service status (for information)
+                command: systemctl status docker.service
+                register: docker_status
+          
+              - debug:
+                  var: docker_status.stdout
+          
+              - name: Install Git
+                yum:
+                  name: git
+                  state: present
+          
+              - name: Verify Docker version
+                command: docker --version
+                register: docker_version
+          
+              - name: docke pull
+                shell: sudo docker pull httpd
+          
+              - name: run httpd
+                shell: sudo docker run -it -d --name http -p 8000:80 httpd
+          
+              - name: docker shap
+                shell: sudo docker commit http poornima/insidedevil
+          
+              - name: push
+                shell: docker push poornima/insidedevil
 
     
