@@ -1,0 +1,1 @@
+docker pull nginx docker -it -d -p 8000:80 nginx
